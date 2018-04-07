@@ -1,9 +1,12 @@
 /code/data/
-/code/free_loc/
 /code/logs/
 /code/models/
 /code/pretrained_alexnet.pkl
+/code/free_loc/logs/
 /code/free_loc/logs_robust/
 /code/free_loc/model_best.pth.tar
 /code/free_loc/checkpoint.pth.tar
 /code/free_loc/non_robust/
+/code/free_loc/non_robust_pics/
+/code/free_loc/robust_pics/
+/code/free_loc/robust/
