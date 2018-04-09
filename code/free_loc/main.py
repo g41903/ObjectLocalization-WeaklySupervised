@@ -3,6 +3,7 @@ import os
 import shutil
 import time
 import sys
+import cv2
 # sys.path.insert(0,'/home/spurushw/reps/hw-wsddn-sol/faster_rcnn')
 sys.path.insert(0, '/home/ubuntu/aws_share/sol/hw2-solution/code/faster_rcnn/')
 sys.path.insert(0, '/home/ubuntu/aws_share/sol/hw2-solution/code/')
@@ -26,6 +27,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from sklearn.metrics import recall_score
 from sklearn.metrics import f1_score
+from matplotlib import pyplot as plt
 
 import logger
 from datasets.factory import get_imdb
@@ -53,7 +55,7 @@ parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum')
 parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
                     metavar='W', help='weight decay (default: 1e-4)')
-parser.add_argument('--print-freq', '-p', default=10, type=int,
+parser.add_argument('--print-freq', '-p', default=50, type=int,
                     metavar='N', help='print frequency (default: 10)')
 parser.add_argument('--eval-freq', default=10, type=int,
                     metavar='N', help='print frequency (default: 10)')
@@ -181,8 +183,8 @@ def main():
         train(train_loader, model, criterion, optimizer, epoch, data_log, vis, args.arch)
 
         # evaluate on validation set
-#         if epoch%args.eval_freq==0 or epoch==args.epochs-1:
         if epoch%10==0 or epoch==args.epochs-1:
+#         if True: #temp
             print("now evaluating!!!!!!")
             m1, m2 = validate(val_loader, model, criterion,vis,epoch)
             score = m1*m2
@@ -191,6 +193,7 @@ def main():
             best_prec1 = max(score, best_prec1)
             data_log.scalar_summary(tag='valid/metric1',value=m1,step= epoch)
             data_log.scalar_summary(tag='valid/metric2',value=m2,step= epoch)
+#             import pdb;pdb.set_trace()
             save_checkpoint({
                 'epoch': epoch + 1,
                 'arch': args.arch,
@@ -249,6 +252,7 @@ def train(train_loader, model, criterion, optimizer, epoch, data_log, vis, mode)
 
         # store visualization
         if (i%int(len(train_loader)/4)) == 0 and epoch < 15:
+#         if True: # temp
             for j in range(4):
                 # index of the ground truth in the target labels, ex: target= [0,1,0,0], gt_indice = 1
                 gt_indice = [idx for idx in range(output.shape[1]) if target[j, idx] == 1]
@@ -277,6 +281,8 @@ def train(train_loader, model, criterion, optimizer, epoch, data_log, vis, mode)
                     vis.image(np.transpose(b,(2,0,1)),
                           opts=dict(title= str(epoch) + '_' + str(i) + '_' + str(j) + 'heatmap' + cls_names[k]))
                 print(str(cnt + epoch * 4)+' '+str(j))
+#                 rgb_images = cv2.cvtColor(images, cv2.COLOR_BGR2RGB)
+#                 import ;pdb.set_trace()
                 data_log.image_summary(tag='/train/'+str(cnt+epoch*4)+'/'+str(j)+'/heatmap',
                                        images=heatmap, step=cur_step)
                 data_log.image_summary(tag='/train/'+str(cnt+epoch*4)+'/'+str(j)+'/images',
@@ -425,8 +431,9 @@ def validate(val_loader, model, criterion,vis,epoch):
     print(' * Metric1 {avg_m1.avg:.3f} Metric2 {avg_m2.avg:.3f}'
           .format(avg_m1=avg_m1, avg_m2=avg_m2))
 
-    return avg_m1.avg, avg_m2.avg
-
+#     return avg_m1.avg, avg_m2.avg
+    return m1,m2
+  
 
 # TODO: You can make changes to this function if you wish (not necessary)
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
